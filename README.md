@@ -1,0 +1,2 @@
+# SignBot
+Requires node-steam.
