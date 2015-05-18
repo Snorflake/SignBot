@@ -1,5 +1,5 @@
 username = '';
-password = 'BkKGgevSJrgcy3X';
+password = '';
 
 var steam = require('steam');
 var winston = require('winston');
