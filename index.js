@@ -1,5 +1,5 @@
 username = '';
-password = '';
+password = 'BkKGgevSJrgcy3X';
 
 var steam = require('steam');
 var winston = require('winston');
@@ -79,34 +79,51 @@ client.on('chatInvite', function(chatRoomID, chatRoomName, patronID) {
  		logger.info('[' + steamID + '] Un-friended.');
  	}
  });
+
  var antihash = false;
  function command(message,id,sender)
  {
  	logger.info('Command issued ' + message + ' by ' + id);
  	var space = message.indexOf(' ');
+    var dash = message.indexOf('-');
  	if(space == -1) space = message.length;
  	var substrd = message.substr(1,space);
  	if(substrd.charAt(substrd.length -1) == " ")
  		substrd = substrd.substr(0,substrd.length-1);
- 	var allargs = message.substr(space + 1);
+    if(message.indexOf('-') > -1)
+ 	  var allargs = message.substr(space + 1, dash);
+    else
+        var allargs = message.substr(space + 1);
  	var args = message.split(" ");
  	
- 	switch(substrd)
+ 	switch(substrd.toLowerCase())
  	{
  		case 'help':
- 			client.sendMessage(id,'.help\n.ping\n.say <message>\n.add [PROFILEID]');
+ 			client.sendMessage(id,'.help\n.ping\n.sourcecode\n.say <message>\n.add [PROFILEID]\n.steamid');
+ 		break;
+
+ 		case 'sourcecode':
+ 			client.sendMessage(id,'https://github.com/Snorflake/SignBot');
  		break;
  		case 'ping':
  			client.sendMessage(id,'pong');
  		break;
  		case 'say':
  			client.sendMessage(id,allargs);
+ 		break;	
+ 		case 'steamid':
+            if(typeof sender == 'undefined')
+                client.sendMessage(id,id);
+            else
+ 			    client.sendMessage(id,sender);
  		break;
  		case 'add':
  		if(typeof args[1] == 'undefined')
  		{
 			client.addFriend(sender);
-			client.sendMessage(id,'Added: ' + sender);
+			client.sendMessage(id,'Added: ' + sender);   
+            client.sendMessage(args[1], 'Hi!\nI\'m $. You can access my interface with chat commands!\nType .help to get started.');
+        
  		}
  		else
  		{
@@ -126,6 +143,15 @@ client.on('chatInvite', function(chatRoomID, chatRoomName, patronID) {
  		break;
  	}
  }
+ rl.setPrompt('input> ');
+rl.prompt();
+rl.on('line', function(line)
+{
+    var args = line.split('-');
+    if(typeof args[1] != 'undefined')
+        command(args[0],args[1],args[2]);
+    rl.prompt();
+});
  client.on('message', function(source, msg, type, chatter){
  	if(type == steam.EChatEntryType.ChatMsg)
  	{
@@ -169,7 +195,8 @@ client.on('chatInvite', function(chatRoomID, chatRoomName, patronID) {
  					break;
  				sum = sum + parseInt(args[i]);
  			}
- 			client.sendMessage(source,sum.toString());
+ 			if(sum > 0)
+ 				client.sendMessage(source,sum.toString());
  		}
  		if(msg.indexOf('*') > -1)
  		{
@@ -182,7 +209,8 @@ client.on('chatInvite', function(chatRoomID, chatRoomName, patronID) {
  					break;
  				sum = sum * parseInt(args[i]);
  			}
- 			client.sendMessage(source,sum.toString());
+ 			if(sum > 0)
+ 				client.sendMessage(source,sum.toString());
  		}
  	}
  		
@@ -192,7 +220,7 @@ client.on('chatInvite', function(chatRoomID, chatRoomName, patronID) {
  	logger.info('Logged in!');
  	client.setPersonaState(steam.EPersonaState.Online);
  	client.setPersonaName('[$]');
- 	client.joinChat('103582791436028776');
+ 	//client.joinChat('103582791436028776');
  	//client.gamesPlayed([730]);
  });
  client.on('servers', function(servers)
